@@ -130,6 +130,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--load', type=str, default=None, dest='load_file', help='Select file under "save-folder" to load.')
     parser.add_argument('-e', '--episode', dest='n_episodes', default=2, type=int, help='Number of episodes to run.')
     parser.add_argument('-b', '--batch-size', dest='batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('-fq', '--save-freq', help='Save frequency', default=0, type=int, dest='save_freq')
     args = parser.parse_args()
 
     # print(args.not_display_screen)
@@ -139,7 +140,7 @@ if __name__ == "__main__":
 
     game = FlappyBird()
     trainer = Trainer(game, MyAgent, display_screen=not args.not_display_screen,
-                      save_folder=args.save_folder, batch_size=args.batch_size)
+                      save_folder=args.save_folder, batch_size=args.batch_size, save_freq=args.save_freq)
     trainer.load(args.load_file)
     trainer.train(args.n_episodes)
     # trainer.play()

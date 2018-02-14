@@ -3,7 +3,7 @@ from ple import PLE
 import os.path, datetime
 
 class Trainer:
-    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None, batch_size=20):
+    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None, batch_size=20, save_freq=0):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -17,6 +17,7 @@ class Trainer:
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time
         self.save_folder = save_folder
+        self.save_freq = save_freq # freq of auto-save network
 
         # make a PLE instance.
         self.ple = PLE(
@@ -92,6 +93,8 @@ class Trainer:
             self._run(on_step=on_step,
                       on_game_over=lambda time: on_game_over(time, ep, n_episodes))
                 # on_init=lambda state: self.agent.set_state(state), 
+            if self.save_freq > 0 and ep % self.save_freq == 0:
+                self.save()
 
     def play(self):
         """Play using the trained agent
