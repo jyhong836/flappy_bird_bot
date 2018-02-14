@@ -2,11 +2,6 @@ import numpy as np
 from ple import PLE
 from ple.games.flappybird import FlappyBird
 
-# predefined parameters
-n_episodes = 100
-nb_frames = 15000
-
-max_episode_time = 500
 
 class MyAgent():
     """My agent
@@ -57,7 +52,7 @@ class MyAgent():
         pass
 
 class Trainer:
-    def __init__(self, game):
+    def __init__(self, game, max_episode_time=10000):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -66,9 +61,9 @@ class Trainer:
         display_screen = True  # Set to false if there is no screen available
 
         # init parameters
-        self.reward = 0.0
-        self.max_noops = 20
+        self.max_noops = 20 # define how many actions will be ignored at the beginning.
         self.cum_n_episodes = 0
+        self.max_episode_time = max_episode_time
 
         # make a PLE instance.
         p = PLE(game, fps=fps, frame_skip=frame_skip, num_steps=num_steps,
@@ -85,10 +80,11 @@ class Trainer:
     #     """
     #     self._random_action()
 
-    def load(self):
-        pass
-    def save(self):
-        pass
+    def load(self, filename):
+        self.agent.load(filename)
+
+    def save(self, filename):
+        self.agent.save(filename)
   
     def _random_action(self):
         """Do a random number of NOOP's
@@ -100,28 +96,24 @@ class Trainer:
         return self.ple.act(self.ple.NOOP)
 
     def train(self, n_episodes):
-        self.ple.reset_game()
-        reward = self._random_action() # get initial reward with random actions.
         self.cum_n_episodes += n_episodes
-        for ep in range(n_episodes):
-            self.ple.reset_game()
-            state = self.getState()
-            # Run game
-            for time in range(max_episode_time):
-                action = self.agent.act(reward, state)
-                reward = self.ple.act(action)
-                game_over = self.ple.game_over()
-                self.agent.remember()
-                if game_over:
-                    # self.agent.study()
-                    print(
-                        f'[episode: {ep}/{n_episodes}], score: {time}, epsilon: {self.agent.epsilon}')
-                    break
-            else:
-                print(f'Game is not ended when timeout{max_episode_time}.')
+
+        def on_step():
+            self.agent.remember()
+
+        def on_game_over(time, ep, n_episodes):
+            print(f'[episode: {ep}/{n_episodes}], score: {time}, epsilon: {self.agent.epsilon}')
             self.agent.study_replay()
 
+        for ep in range(n_episodes):
+            self._play(on_step=on_step,
+                      on_game_over=lambda time:on_game_over(time, ep, n_episodes))
+
     def play(self):
+        self._play(on_game_over=lambda time: print(
+            f'[Game over] score: {time}'))
+
+    def _play(self, on_step=lambda: None, on_game_over=lambda:None):
         """Play using the trained agent
         """
         if self.cum_n_episodes == 0:
@@ -129,21 +121,25 @@ class Trainer:
         self.ple.reset_game()
         reward = self._random_action()
         state = self.getState()
-        for time in range(max_episode_time):
+        for time in range(self.max_episode_time):
             action = self.agent.act(reward, state)
             reward = self.ple.act(action)
             game_over = self.ple.game_over()
+            on_step()
             if game_over:
-                print(
-                    f'[Game over] score: {time}, epsilon: {self.agent.epsilon}')
+                on_game_over(time)
                 break
         else:
-            print(f'Game is not ended when timeout{max_episode_time}.')
+            print(f'Game is not ended when timeout{self.max_episode_time}.')
 
 
-game = FlappyBird()
-trainer = Trainer(game)
-trainer.train(n_episodes)
-# trainer.play()
+if __name__ == "__main__":
+    # predefined parameters
+    n_episodes = 2
+
+    game = FlappyBird()
+    trainer = Trainer(game, max_episode_time = 500)
+    trainer.train(n_episodes)
+    # trainer.play()
 
 
