@@ -26,8 +26,10 @@ class Trainer:
             display_screen=display_screen,
             state_preprocessor=lambda state: np.array(list(state.values())))
 
-        self.agent = agentType(self.ple.getActionSet(),
-                               batch_size=self.max_noops+20)
+        self.agent = agentType(
+            self.ple.getGameStateDims(),
+            self.ple.getActionSet(),
+            batch_size=self.max_noops+20)
 
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()

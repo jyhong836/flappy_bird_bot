@@ -2,10 +2,38 @@ import random
 import numpy as np
 from ple.games.flappybird import FlappyBird
 
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+import keras.backend
+
 from fb_trainer import Trainer
 
+class MyModelFact():
+    """My model factories
+    """
+    
+    @staticmethod
+    def naive_dqn(state_size, action_size, learning_rate):
+        """ Neural Net for Deep-Q learning Model
+        """
+        print('Build Deep Q-learnig Model.')
+
+        def huber_loss(target, prediction):
+            """sqrt(1+error^2)-1"""
+            return keras.backend.mean(keras.backend.sqrt(1+keras.backend.square(prediction - target))-1, axis=-1)
+
+        model = Sequential()
+        assert len(state_size)==1
+        model.add(Dense(24, input_dim=state_size[0], activation='relu'))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dense(action_size, activation='linear'))
+        model.compile(loss=huber_loss,
+                      optimizer=Adam(lr=learning_rate))
+        return model
+
 class AgentType(object):
-    def __init__(self, action_space):
+    def __init__(self, state_size, action_space):
         pass
 
     def act(self, reward, obs):
@@ -17,7 +45,8 @@ class MyAgent(AgentType):
         A simple agent playing FlappyBird.
     """
 
-    def __init__(self, action_space, batch_size=10):
+    def __init__(self, state_size, action_space, batch_size=10):
+        self.state_size = state_size
         self.action_space = action_space
         self.batch_size = batch_size
 
@@ -35,7 +64,8 @@ class MyAgent(AgentType):
         self.model = self._build_model()
     
     def _build_model(self):
-        model = [] # TODO build model using Keras
+        # TODO build model using Keras
+        model = MyModelFact.naive_dqn(self.state_size, len(self.action_space), self.learning_rate)
         return model
 
     def act(self, reward, obs):
