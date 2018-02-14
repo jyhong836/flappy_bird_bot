@@ -127,6 +127,7 @@ if __name__ == "__main__":
                         help='Select a folder to store the saved data e.g., network.')
     parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
                         default=False, help='Display game to the screen.', action='store_true')
+    parser.add_argument('-l', '--load', type=str, default=None, dest='load_file', help='Select file under "save-folder" to load.')
     args = parser.parse_args()
 
     # print(args.not_display_screen)
@@ -136,9 +137,10 @@ if __name__ == "__main__":
 
     game = FlappyBird()
     trainer = Trainer(game, MyAgent, display_screen = not args.not_display_screen, save_folder=args.save_folder)
+    trainer.load(args.load_file)
     trainer.train(n_episodes)
     # trainer.play()
-
+    trainer.save()
     trainer.save_screen() # for testing screen
 
 
