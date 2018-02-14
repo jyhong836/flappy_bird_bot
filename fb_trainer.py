@@ -39,17 +39,18 @@ class Trainer:
     def _get_time(self):
         return str(datetime.datetime.now())
 
-    def load(self):
+    def load(self, filename):
         if not self.save_folder is None:
             # TODO load cum_n_episodes
             self.agent.load(
-                (os.path.join(self.save_folder, 'screen_'+self._get_time())))
+                (os.path.join(self.save_folder, filename)))
 
     def save(self):
         if not self.save_folder is None:
             # TODO save cum_n_episodes
-            self.agent.save(
-                os.path.join(self.save_folder, 'screen_'+self._get_time()))
+            filename = os.path.join(
+                self.save_folder, 'fbtr_'+self._get_time()+'.h5')
+            self.agent.save(filename)
     
     def save_screen(self):
         if not self.save_folder is None:
