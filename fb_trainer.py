@@ -44,14 +44,18 @@ class Trainer:
             # TODO load cum_n_episodes
             fn = os.path.join(self.save_folder, filename)
             if os.path.isfile(fn):
+                print('load: ' + fn)
                 self.agent.load(fn)
+            else:
+                print('Not found file: '+fn)
 
     def save(self):
         if not self.save_folder is None:
             # TODO save cum_n_episodes
             filename = os.path.join(
                 self.save_folder, 'fbtr.h5')
-                # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
+            # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
+            print('save to'+filename)
             self.agent.save(filename)
     
     def save_screen(self):
