@@ -98,7 +98,7 @@ class Trainer:
     def train(self, n_episodes):
         self.cum_n_episodes += n_episodes
 
-        def on_step():
+        def on_step(action, reward, state, game_over):
             self.agent.remember()
 
         def on_game_over(time, ep, n_episodes):
@@ -106,26 +106,36 @@ class Trainer:
             self.agent.study_replay()
 
         for ep in range(n_episodes):
-            self._play(on_step=on_step,
+            self._run(on_step=on_step,
                       on_game_over=lambda time:on_game_over(time, ep, n_episodes))
 
     def play(self):
-        self._play(on_game_over=lambda time: print(
+        """Play using the trained agent
+        """
+        self._run(on_game_over=lambda time: print(
             f'[Game over] score: {time}'))
 
-    def _play(self, on_step=lambda: None, on_game_over=lambda:None):
-        """Play using the trained agent
+    def _run(self, 
+             on_step=lambda action, reward, state, game_over: None,
+             on_game_over=lambda time: None):
+        """Run the game with agent
+
+        Parameters:
+            on_step(action, reward, state, game_over)
+            on_game_over(time)
         """
         if self.cum_n_episodes == 0:
             print('[WARN] agent is not trained yet.')
         self.ple.reset_game()
         reward = self._random_action()
-        state = self.getState()
         for time in range(self.max_episode_time):
-            action = self.agent.act(reward, state)
-            reward = self.ple.act(action)
+            state     = self.getState()
+            action    = self.agent.act(reward, state)
+            reward    = self.ple.act(action)
             game_over = self.ple.game_over()
-            on_step()
+
+            on_step(action, reward, state, game_over)
+
             if game_over:
                 on_game_over(time)
                 break
@@ -138,8 +148,8 @@ if __name__ == "__main__":
     n_episodes = 2
 
     game = FlappyBird()
-    trainer = Trainer(game, max_episode_time = 500)
-    trainer.train(n_episodes)
-    # trainer.play()
+    trainer = Trainer(game)
+    # trainer.train(n_episodes)
+    trainer.play()
 
 
