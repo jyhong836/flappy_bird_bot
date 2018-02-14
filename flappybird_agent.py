@@ -120,7 +120,7 @@ class MyAgent(AgentType):
         self._state = self._state_preprocessor(state)
         if curstate is None:
             print('Init state is not set! Call set_state() at each episode.')
-            raise
+            raise ValueError
         self.memory.append((curstate, action, reward, self._state, game_over))
     
     def load(self, file_name):
