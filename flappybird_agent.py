@@ -2,8 +2,14 @@ import numpy as np
 from ple import PLE
 from ple.games.flappybird import FlappyBird
 
+class AgentType(object):
+    def __init__(self, action_space):
+        pass
 
-class MyAgent():
+    def act(self, reward, obs):
+        pass
+
+class MyAgent(AgentType):
     """My agent
 
         A simple agent playing FlappyBird.
@@ -34,14 +40,14 @@ class MyAgent():
             return []
         
 
-    def study_replay(self):
+    def study(self):
         """Learn models from memory or by replaying.
         """
         if len(self.memory) < self.batch_size:
             return # not study
 
-    def remember(self):
-        """Remember (state, action, ...)
+    def remember(self, action, reward, state, game_over):
+        """Remember current information.
         """
         pass
     
@@ -52,7 +58,7 @@ class MyAgent():
         pass
 
 class Trainer:
-    def __init__(self, game, max_episode_time=10000):
+    def __init__(self, game, agentType, max_episode_time=10000):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -61,30 +67,23 @@ class Trainer:
         display_screen = True  # Set to false if there is no screen available
 
         # init parameters
-        self.max_noops = 20 # define how many actions will be ignored at the beginning.
+        self.max_noops = 10 # define how many actions will be ignored at the beginning.
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time
 
         # make a PLE instance.
-        p = PLE(game, fps=fps, frame_skip=frame_skip, num_steps=num_steps,
+        self.ple = PLE(game, fps=fps, frame_skip=frame_skip, num_steps=num_steps,
                 force_fps=force_fps, display_screen=display_screen)
 
-        self.ple = p
-        # self.agent = agent
-        self.agent = MyAgent(self.ple.getActionSet())
+        self.agent = agentType(self.ple.getActionSet())
 
         self.getState = lambda: self.ple.getScreenRGB()
 
-    # def _init_training(self):
-    #     """Init the trainer
-    #     """
-    #     self._random_action()
-
     def load(self, filename):
-        self.agent.load(filename)
+        self.agent.load(filename)  # TODO load cum_n_episodes
 
     def save(self, filename):
-        self.agent.save(filename)
+        self.agent.save(filename)  # TODO save cum_n_episodes
   
     def _random_action(self):
         """Do a random number of NOOP's
@@ -96,14 +95,16 @@ class Trainer:
         return self.ple.act(self.ple.NOOP)
 
     def train(self, n_episodes):
+        """Train model with 'n_episodes' game plays.
+        """
         self.cum_n_episodes += n_episodes
 
         def on_step(action, reward, state, game_over):
-            self.agent.remember()
+            self.agent.remember(action, reward, state, game_over)
 
         def on_game_over(time, ep, n_episodes):
             print(f'[episode: {ep}/{n_episodes}], score: {time}, epsilon: {self.agent.epsilon}')
-            self.agent.study_replay()
+            self.agent.study()
 
         for ep in range(n_episodes):
             self._run(on_step=on_step,
@@ -148,7 +149,7 @@ if __name__ == "__main__":
     n_episodes = 2
 
     game = FlappyBird()
-    trainer = Trainer(game)
+    trainer = Trainer(game, MyAgent)
     # trainer.train(n_episodes)
     trainer.play()
 
