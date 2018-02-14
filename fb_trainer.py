@@ -26,7 +26,8 @@ class Trainer:
             display_screen=display_screen,
             state_preprocessor=lambda state: np.array(list(state.values())))
 
-        self.agent = agentType(self.ple.getActionSet())
+        self.agent = agentType(self.ple.getActionSet(),
+                               batch_size=self.max_noops+20)
 
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
@@ -42,7 +43,8 @@ class Trainer:
 
         This is useful when first several actions are nonsense and they can be used to init rewards or states.
         """
-        for _ in range(np.random.randint(0, self.max_noops-1)):
+        # for _ in range(np.random.randint(0, self.max_noops)):
+        for _ in range(self.max_noops):
             self.ple.act(self.ple.NOOP)
         return self.ple.act(self.ple.NOOP)
 

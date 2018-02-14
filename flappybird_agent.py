@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from ple.games.flappybird import FlappyBird
 
@@ -16,12 +17,14 @@ class MyAgent(AgentType):
         A simple agent playing FlappyBird.
     """
 
-    def __init__(self, action_space, batch_size=100):
+    def __init__(self, action_space, batch_size=10):
         self.action_space = action_space
+        self.batch_size = batch_size
 
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.batch_size = batch_size
+        self.epsilon_decay = 0.99
+        self.learning_rate = 0.001
 
         self.memory = []
 
@@ -41,14 +44,30 @@ class MyAgent(AgentType):
         else:
             # action_prob = self.model.predict()
             # return np.argmax(action_prob)
-            return []
-        
+            return []        
 
     def study(self):
         """Learn models from memory or by replaying.
         """
         if len(self.memory) < self.batch_size:
             return # not study
+
+        def do_with_play(curstate, action, reward, state, game_over):
+            print(curstate, action, reward, state, game_over)
+            return None
+
+        self._replay(self.batch_size, do_with_play)
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
+    def _replay(self, batch_size, do_with_play):
+        """
+
+        do_with_play (curstate, action, reward, state, game_over)-> ??
+        """
+        minibatch = random.sample(self.memory, batch_size)
+        [do_with_play(*play_tuple)
+         for play_tuple in minibatch]
 
     def _state_preprocessor(self, state):
         return state
@@ -59,7 +78,7 @@ class MyAgent(AgentType):
         'memory' will store info formatted as:
             (curstate, action, reward, state, game_over)
         """
-        print(state)
+        # print(state)
         curstate = self._state
         self._state = self._state_preprocessor(state)
 
