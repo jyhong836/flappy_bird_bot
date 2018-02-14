@@ -19,8 +19,8 @@ class ModelFactory():
 
         model = Sequential()
         # print('### '+repr(state_size))
-        model.add(Dense(24, input_shape=state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
+        model.add(Dense(32, input_shape=state_size, activation='relu'))
+        model.add(Dense(128, activation='relu'))
         model.add(Dense(action_size, activation='linear'))
         model.compile(loss=huber_loss,
                       optimizer=Adam(lr=learning_rate))
