@@ -53,7 +53,10 @@ class Trainer:
     
     def save_screen(self):
         if not self.save_folder is None:
-            self.ple.saveScreen(os.path.join(self.save_folder, 'screen_'+self._get_time()+'.png'))
+            filename = os.path.join(
+                self.save_folder, 'screen_'+self._get_time()+'.png')
+            print('try to save screen to '+filename)
+            self.ple.saveScreen(filename)
 
     def _random_action(self):
         """Do a random number of NOOP's
