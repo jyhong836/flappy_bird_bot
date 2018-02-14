@@ -6,6 +6,8 @@ from ple.games.flappybird import FlappyBird
 from fb_trainer import Trainer
 from fbmodels import ModelFactory
 
+# The file borrows many codes from 'https://github.com/keon/deep-q-learning'
+
 class AgentType(object):
     def __init__(self, state_size, action_space):
         pass
@@ -19,7 +21,7 @@ class MyAgent(AgentType):
         A simple agent playing FlappyBird.
     """
 
-    def __init__(self, state_size, action_space, batch_size=10):
+    def __init__(self, state_size, action_space, batch_size=100):
         print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
@@ -81,8 +83,8 @@ class MyAgent(AgentType):
         do_with_play (curstate, action, reward, state, game_over)-> ??
         """
         minibatch = random.sample(self.memory, batch_size)
-        [do_with_play(*play_tuple)
-         for play_tuple in minibatch]
+        for play_tuple in minibatch:
+            do_with_play(*play_tuple)
 
     def _state_preprocessor(self, state):
         return np.reshape(state, [1, self.state_size[0]])

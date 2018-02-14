@@ -60,7 +60,7 @@ class Trainer:
 
         def on_game_over(time, ep, n_episodes):
             print(
-                f'[episode: {ep+1}/{n_episodes}], score: {time}, epsilon: {self.agent.epsilon}')
+                '[episode: {}/{}], score: {}, epsilon: {}'.format(ep+1, n_episodes, time, self.agent.epsilon))
             self.agent.study()
 
         for ep in range(n_episodes):
@@ -72,7 +72,7 @@ class Trainer:
         """Play using the trained agent
         """
         self._run(on_game_over=lambda time: print(
-            f'[Game over] score: {time}'))
+            '[Game over] score: {}'.format(time)))
 
     def _run(self,
         on_step=lambda action, reward, state, game_over: None,
@@ -104,4 +104,5 @@ class Trainer:
                 on_game_over(time)
                 break
         else:
-            print(f'Game is not ended when timeout{self.max_episode_time}.')
+            print('Game is not ended when timeout{}.'.format(
+                self.max_episode_time))
