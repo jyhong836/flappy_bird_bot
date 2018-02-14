@@ -37,7 +37,7 @@ class Trainer:
         self.getState = lambda: self.ple.getGameState()
 
     def _get_time(self):
-        return datetime.date.today().strftime("%Y%m%d_%I_%M%p")
+        return str(datetime.datetime.now())
 
     def load(self):
         if not self.save_folder is None:
