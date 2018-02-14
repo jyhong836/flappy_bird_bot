@@ -1,5 +1,6 @@
 import numpy as np
 from ple import PLE
+import os, datetime
 
 class Trainer:
     def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None):
@@ -35,13 +36,24 @@ class Trainer:
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
 
+    def _get_time(self):
+        return datetime.date.today().strftime("%Y%m%d_%I_%M%p")
+
     def load(self):
         if not self.save_folder is None:
-            self.agent.load(self.save_folder)  # TODO load cum_n_episodes
+            # TODO load cum_n_episodes
+            self.agent.load(
+                (os.path.join(self.save_folder, 'screen_'+self._get_time())))
 
     def save(self):
         if not self.save_folder is None:
-            self.agent.save(self.save_folder)  # TODO save cum_n_episodes
+            # TODO save cum_n_episodes
+            self.agent.save(
+                os.path.join(self.save_folder, 'screen_'+self._get_time()))
+    
+    def save_screen(self):
+        if not self.save_folder is None:
+            self.ple.saveScreen(os.path.join(self.save_folder, 'screen_'+self._get_time()+'.png'))
 
     def _random_action(self):
         """Do a random number of NOOP's

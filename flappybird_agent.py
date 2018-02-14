@@ -136,7 +136,9 @@ if __name__ == "__main__":
 
     game = FlappyBird()
     trainer = Trainer(game, MyAgent, display_screen = not args.not_display_screen, save_folder=args.save_folder)
-    # trainer.train(n_episodes)
+    trainer.train(n_episodes)
     # trainer.play()
+
+    trainer.save_screen() # for testing screen
 
 
