@@ -2,19 +2,20 @@ import numpy as np
 from ple import PLE
 
 class Trainer:
-    def __init__(self, game, agentType, max_episode_time=10000):
+    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
         num_steps = 1
         force_fps = False  # slower speed
-        display_screen = True  # Set to false if there is no screen available
+        # display_screen = True  # Set to false if there is no screen available
 
         # init parameters
         # define how many actions will be ignored at the beginning.
         self.max_noops = 2
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time
+        self.save_folder = save_folder
 
         # make a PLE instance.
         self.ple = PLE(
@@ -34,11 +35,13 @@ class Trainer:
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
 
-    def load(self, filename):
-        self.agent.load(filename)  # TODO load cum_n_episodes
+    def load(self):
+        if not self.save_folder is None:
+            self.agent.load(self.save_folder)  # TODO load cum_n_episodes
 
-    def save(self, filename):
-        self.agent.save(filename)  # TODO save cum_n_episodes
+    def save(self):
+        if not self.save_folder is None:
+            self.agent.save(self.save_folder)  # TODO save cum_n_episodes
 
     def _random_action(self):
         """Do a random number of NOOP's

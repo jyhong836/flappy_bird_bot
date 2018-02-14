@@ -1,3 +1,4 @@
+import argparse
 import random
 import numpy as np
 from collections import deque
@@ -22,7 +23,7 @@ class MyAgent(AgentType):
     """
 
     def __init__(self, state_size, action_space, batch_size=100):
-        print(action_space)
+        # print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
         self.action_space = action_space
@@ -121,12 +122,21 @@ class MyAgent(AgentType):
         pass
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Train a robot for "Flappy Bird" game.')
+    parser.add_argument('-f', '--save-folder', dest='save_folder', default=None, type=str,
+                        help='Select a folder to store the saved data e.g., network.')
+    parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
+                        default=False, help='Display game to the screen.', action='store_true')
+    args = parser.parse_args()
+
+    # print(args.not_display_screen)
+
     # predefined parameters
     n_episodes = 2
 
     game = FlappyBird()
-    trainer = Trainer(game, MyAgent)
-    trainer.train(n_episodes)
+    trainer = Trainer(game, MyAgent, display_screen = not args.not_display_screen, save_folder=args.save_folder)
+    # trainer.train(n_episodes)
     # trainer.play()
 
 
