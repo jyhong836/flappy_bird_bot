@@ -64,7 +64,7 @@ class Trainer:
             self.agent.study()
 
         for ep in range(n_episodes):
-            self._run(on_step=on_step,
+            self._run(on_init=lambda state: self.agent.set_state(state), on_step=on_step,
                       on_game_over=lambda time: on_game_over(time, ep, n_episodes))
 
     def play(self):
@@ -74,8 +74,9 @@ class Trainer:
             f'[Game over] score: {time}'))
 
     def _run(self,
-             on_step=lambda action, reward, state, game_over: None,
-             on_game_over=lambda time: None):
+        on_init=lambda state: None,
+        on_step=lambda action, reward, state, game_over: None,
+        on_game_over=lambda time: None):
         """Run the game with agent
 
         Parameters:
@@ -86,10 +87,13 @@ class Trainer:
             print('[WARN] agent is not trained yet.')
         self.ple.reset_game()
         reward = self._random_action()
+        state = self.getState()
+        on_init(state)
         for time in range(self.max_episode_time):
-            state = self.getState()
+            # print(f'state: {state}')
             action = self.agent.act(reward, state)
             reward = self.ple.act(action)
+            state  = self.getState()
             game_over = self.ple.game_over()
 
             on_step(action, reward, state, game_over)

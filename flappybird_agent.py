@@ -25,8 +25,8 @@ class MyModelFact():
             return keras.backend.mean(keras.backend.sqrt(1+keras.backend.square(prediction - target))-1, axis=-1)
 
         model = Sequential()
-        assert len(state_size)==1
-        model.add(Dense(24, input_dim=state_size[0], activation='relu'))
+        # print('### '+repr(state_size))
+        model.add(Dense(24, input_shape=state_size, activation='relu'))
         model.add(Dense(24, activation='relu'))
         model.add(Dense(action_size, activation='linear'))
         model.compile(loss=huber_loss,
@@ -47,6 +47,7 @@ class MyAgent(AgentType):
     """
 
     def __init__(self, state_size, action_space, batch_size=10):
+        # assert len(state_size) == 1
         self.state_size   = state_size
         self.action_space = action_space
         self.batch_size   = batch_size
@@ -60,15 +61,17 @@ class MyAgent(AgentType):
         self.learning_rate = 0.001
 
         # private
-        self._state = []
+        self._state = None
 
         # init model
         self.model = self._build_model()
     
     def _build_model(self):
-        # TODO build model using Keras
         model = MyModelFact.naive_dqn(self.state_size, len(self.action_space), self.learning_rate)
         return model
+
+    def set_state(self, state):
+        self._state = self._state_preprocessor(state)
 
     def act(self, reward, obs):
         if np.random.rand() <= self.epsilon:
@@ -85,8 +88,9 @@ class MyAgent(AgentType):
             return # not study
 
         def do_with_play(curstate, action, reward, state, game_over):
-            
-            print(curstate, action, reward, state, game_over)
+            target = self.model.predict(curstate)
+            print(target)
+            # print(curstate, action, reward, state, game_over)
             return None
 
         self._replay(self.batch_size, do_with_play)
@@ -103,7 +107,7 @@ class MyAgent(AgentType):
          for play_tuple in minibatch]
 
     def _state_preprocessor(self, state):
-        return state
+        return np.reshape(state, [1, self.state_size[0]])
 
     def remember(self, action, reward, state, game_over):
         """Remember current information.
@@ -114,8 +118,10 @@ class MyAgent(AgentType):
         # print(state)
         curstate = self._state
         self._state = self._state_preprocessor(state)
-
-        self.memory.append((curstate, action, reward, state, game_over))
+        if curstate is None:
+            print('Init state is not set! Call set_state() at each episode.')
+            raise
+        self.memory.append((curstate, action, reward, self._state, game_over))
     
     def load(self, file_name):
         pass
