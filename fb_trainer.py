@@ -3,7 +3,7 @@ from ple import PLE
 import os.path, datetime
 
 class Trainer:
-    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None):
+    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None, batch_size=20):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -31,7 +31,7 @@ class Trainer:
         self.agent = agentType(
             self.ple.getGameStateDims(),
             self.ple.getActionSet(),
-            batch_size=self.max_noops+20)
+            batch_size=batch_size)
 
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
