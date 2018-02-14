@@ -1,6 +1,6 @@
 import numpy as np
 from ple import PLE
-import os, datetime
+import os.path, datetime
 
 class Trainer:
     def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None):
@@ -42,8 +42,9 @@ class Trainer:
     def load(self, filename):
         if not self.save_folder is None:
             # TODO load cum_n_episodes
-            self.agent.load(
-                (os.path.join(self.save_folder, filename)))
+            fn = os.path.join(self.save_folder, filename)
+            if os.path.isfile(fn):
+                self.agent.load(fn)
 
     def save(self):
         if not self.save_folder is None:
