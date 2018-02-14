@@ -49,7 +49,8 @@ class Trainer:
         if not self.save_folder is None:
             # TODO save cum_n_episodes
             filename = os.path.join(
-                self.save_folder, 'fbtr_'+self._get_time()+'.h5')
+                self.save_folder, 'fbtr.h5')
+                # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
             self.agent.save(filename)
     
     def save_screen(self):
