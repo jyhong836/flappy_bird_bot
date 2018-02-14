@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from collections import deque
 from ple.games.flappybird import FlappyBird
 
 from keras.models import Sequential
@@ -46,16 +47,17 @@ class MyAgent(AgentType):
     """
 
     def __init__(self, state_size, action_space, batch_size=10):
-        self.state_size = state_size
+        self.state_size   = state_size
         self.action_space = action_space
-        self.batch_size = batch_size
+        self.batch_size   = batch_size
 
-        self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
+        self.memory = deque(maxlen=2000)
+
+        self.gamma         = 0.95    # discount rate
+        self.epsilon       = 1.0  # exploration rate
+        self.epsilon_min   = 0.01
         self.epsilon_decay = 0.99
         self.learning_rate = 0.001
-
-        self.memory = []
 
         # private
         self._state = []
@@ -83,6 +85,7 @@ class MyAgent(AgentType):
             return # not study
 
         def do_with_play(curstate, action, reward, state, game_over):
+            
             print(curstate, action, reward, state, game_over)
             return None
 

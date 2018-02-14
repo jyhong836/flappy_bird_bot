@@ -12,7 +12,7 @@ class Trainer:
 
         # init parameters
         # define how many actions will be ignored at the beginning.
-        self.max_noops = 10
+        self.max_noops = 2
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time
 
