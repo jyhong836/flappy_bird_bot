@@ -55,7 +55,7 @@ class Trainer:
             filename = os.path.join(
                 self.save_folder, 'fbtr.h5')
             # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
-            print('save to'+filename)
+            print('save: '+filename)
             self.agent.save(filename)
     
     def save_screen(self):

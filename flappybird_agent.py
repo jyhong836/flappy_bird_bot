@@ -116,10 +116,10 @@ class MyAgent(AgentType):
             game_over))
     
     def load(self, file_name):
-        pass
+        self.model.load_weights(file_name)
 
     def save(self, file_name):
-        pass
+        self.model.save_weights(file_name)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a robot for "Flappy Bird" game.')
