@@ -3,7 +3,7 @@ from ple import PLE
 import os.path, datetime
 
 class Trainer:
-    def __init__(self, game, agentType, max_episode_time=10000, display_screen=True, save_folder=None, batch_size=20, save_freq=0):
+    def __init__(self, game, agentType, max_episode_time=100000, display_screen=True, save_folder=None, batch_size=20, save_freq=0):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -100,7 +100,8 @@ class Trainer:
         """Play using the trained agent
         """
         self._run(on_game_over=lambda time: print(
-            '[Game over] score: {}'.format(time)))
+            '[Game over] score: {}'.format(time)),
+            on_step=lambda action, reward, state, game_over: print('action: {}'.format(action)))
 
     def _run(self,
         on_step=lambda action, reward, state, game_over: None,

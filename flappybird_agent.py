@@ -22,20 +22,23 @@ class MyAgent(AgentType):
         A simple agent playing FlappyBird.
     """
 
-    def __init__(self, state_size, action_space, batch_size=100):
+    def __init__(self, state_size, action_space, batch_size=32, memory_size=50000):
         # print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
         self.action_space = action_space
         self.batch_size   = batch_size
 
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=memory_size)
 
-        self.gamma         = 0.95    # discount rate
+        self.gamma         = 0.99    # discount rate
+        self.init_epsilon  = 1.0
         self.epsilon       = 1.0  # exploration rate
-        self.epsilon_min   = 0.01
+        self.epsilon_min   = 0.0001
         self.epsilon_decay = 0.99
         self.learning_rate = 0.001
+        self.n_observation = 10000  # timesteps to observe before training
+        self.n_explore = 100000  # frames over which to anneal epsilon
 
         # private
         self._state = None
@@ -59,7 +62,7 @@ class MyAgent(AgentType):
     def study(self):
         """Learn models from memory or by replaying.
         """
-        if len(self.memory) < self.batch_size:
+        if len(self.memory) < self.batch_size or len(self.memory) < self.n_observation:
             return # not study
 
         def do_with_play(curstate, action, reward, next_state, game_over):
@@ -75,8 +78,9 @@ class MyAgent(AgentType):
             return None
 
         self._replay(self.batch_size, do_with_play)
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
+        if self.epsilon > self.epsilon_min and len(self.memory) > self.n_observation:
+            # self.epsilon *= self.epsilon_decay
+            self.epsilon -= (self.init_epsilon - self.epsilon_min) / self.n_explore
 
     def _replay(self, batch_size, do_with_play):
         """
@@ -128,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
                         default=False, help='Display game to the screen.', action='store_true')
     parser.add_argument('-l', '--load', type=str, default=None, dest='load_file', help='Select file under "save-folder" to load.')
-    parser.add_argument('-e', '--episode', dest='n_episodes', default=2, type=int, help='Number of episodes to run.')
+    parser.add_argument('-e', '--episode', dest='n_episodes', default=200000, type=int, help='Number of episodes to run.')
     parser.add_argument('-b', '--batch-size', dest='batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('-fq', '--save-freq', help='Save frequency', default=0, type=int, dest='save_freq')
     args = parser.parse_args()
