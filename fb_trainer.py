@@ -8,7 +8,7 @@ class Trainer:
 
         frame_skip = 2
         num_steps = 1
-        force_fps = False  # slower speed
+        # force_fps = False  # slower speed
         # display_screen = True  # Set to false if there is no screen available
 
         # init parameters
@@ -24,7 +24,7 @@ class Trainer:
             fps=fps, 
             frame_skip=frame_skip, 
             num_steps=num_steps,
-            force_fps=force_fps, 
+            force_fps=True, # 'False' only for better visual
             display_screen=display_screen,
             state_preprocessor=lambda state: np.array(list(state.values())))
 
