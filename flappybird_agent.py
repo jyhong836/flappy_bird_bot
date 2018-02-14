@@ -47,6 +47,7 @@ class MyAgent(AgentType):
     """
 
     def __init__(self, state_size, action_space, batch_size=10):
+        print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
         self.action_space = action_space
@@ -70,16 +71,13 @@ class MyAgent(AgentType):
         model = MyModelFact.naive_dqn(self.state_size, len(self.action_space), self.learning_rate)
         return model
 
-    def set_state(self, state):
-        self._state = self._state_preprocessor(state)
-
-    def act(self, reward, obs):
+    def act(self, reward, state):
+        self._state = state
         if np.random.rand() <= self.epsilon:
             return self.action_space[np.random.randint(0, len(self.action_space))]
         else:
-            # action_prob = self.model.predict()
-            # return np.argmax(action_prob)
-            return []        
+            action_prob = self.model.predict(self._state_preprocessor(state))
+            return self._idx2act(np.argmax(action_prob))
 
     def study(self):
         """Learn models from memory or by replaying.
@@ -87,10 +85,15 @@ class MyAgent(AgentType):
         if len(self.memory) < self.batch_size:
             return # not study
 
-        def do_with_play(curstate, action, reward, state, game_over):
+        def do_with_play(curstate, action, reward, next_state, game_over):
             target = self.model.predict(curstate)
-            print(target)
-            # print(curstate, action, reward, state, game_over)
+            if game_over:
+                target[0][action] = reward
+            else:
+                # TODO replace the 'self.model' with a stable one.
+                target[0][action] = reward + self.gamma * \
+                    np.amax(self.model.predict(next_state)[0])
+            self.model.fit(curstate, target, epochs=1, verbose=0) # TODO use [curstate, action] as input
             return None
 
         self._replay(self.batch_size, do_with_play)
@@ -109,7 +112,13 @@ class MyAgent(AgentType):
     def _state_preprocessor(self, state):
         return np.reshape(state, [1, self.state_size[0]])
 
-    def remember(self, action, reward, state, game_over):
+    def _act2idx(self, action):
+        return self.action_space.index(action)
+
+    def _idx2act(self, index):
+        return self.action_space[index]
+
+    def remember(self, action, reward, next_state, game_over):
         """Remember current information.
 
         'memory' will store info formatted as:
@@ -117,11 +126,16 @@ class MyAgent(AgentType):
         """
         # print(state)
         curstate = self._state
-        self._state = self._state_preprocessor(state)
+        # self._state = self._state_preprocessor(next_state)
         if curstate is None:
             print('Init state is not set! Call set_state() at each episode.')
             raise ValueError
-        self.memory.append((curstate, action, reward, self._state, game_over))
+        self.memory.append(
+            (self._state_preprocessor(curstate),
+            self._act2idx(action), 
+            reward, 
+            self._state_preprocessor(next_state), 
+            game_over))
     
     def load(self, file_name):
         pass
