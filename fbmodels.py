@@ -28,7 +28,7 @@ class ModelFactory():
 
     @staticmethod
     def naive_dqn_v1(state_size, action_size, learning_rate):
-        """ Neural Net for Deep-Q learning Model
+        """ Neural Net for Deep-Q learning Model (https://github.com/DongjunLee/dqn-tensorflow/blob/master/model.py)
         """
         print('Build Deep Q-learnig Model.')
 

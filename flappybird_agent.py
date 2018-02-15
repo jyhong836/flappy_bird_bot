@@ -83,31 +83,36 @@ class MyAgent(AgentType):
         if len(self.memory) < self.batch_size or len(self.memory) < self.n_observation:
             return # not study
 
-        def do_with_play(curstate, action, reward, next_state, game_over):
+        def on_play(curstate, action, reward, next_state, game_over):
             # print(curstate, action, reward, next_state, game_over)
             target = self.model.predict(curstate)
             if game_over:
                 target[0][action] = reward
             else:
-                # TODO replace the 'self.model' with a stable one.
                 target[0][action] = reward + self.gamma * \
                     np.amax(self.model.predict(next_state)[0])
-            self.model.fit(curstate, target, epochs=1, verbose=0)
-            return None
+            return (curstate, target)
 
-        self._replay(self.batch_size, do_with_play)
+        x, y = self._replay(self.batch_size, on_play)
+        self.model.train_on_batch(x, y)
         if self.epsilon > self.epsilon_min and len(self.memory) > self.n_observation:
             # self.epsilon *= self.epsilon_decay
             self.epsilon -= (self.init_epsilon - self.epsilon_min) / self.n_explore
 
-    def _replay(self, batch_size, do_with_play):
+    def _replay(self, batch_size, on_play):
         """
 
         do_with_play (curstate, action, reward, state, game_over)-> ??
         """
         minibatch = random.sample(self.memory, batch_size)
-        for play_tuple in minibatch:
-            do_with_play(*play_tuple)
+
+        # print(self.action_space)
+        # print(self.state_size)
+        x = np.zeros((batch_size, self.state_size[0]))
+        y = np.zeros((batch_size, len(self.action_space)))
+        for i, play_tuple in enumerate(minibatch):
+            x[i, :], y[i, :] = on_play(*play_tuple)
+        return x, y
 
     def _state_preprocessor(self, state):
         return np.reshape(state, [1, self.state_size[0]])
