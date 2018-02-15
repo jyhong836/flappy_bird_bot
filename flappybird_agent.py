@@ -1,3 +1,4 @@
+import json
 import argparse
 import random
 import numpy as np
@@ -10,10 +11,13 @@ from fbmodels import ModelFactory
 # The file borrows many codes from 'https://github.com/keon/deep-q-learning'
 
 class AgentType(object):
-    def __init__(self, state_size, action_space):
+    def __init__(self):
         pass
 
     def act(self, reward, obs):
+        pass
+
+    def setup(self, state_size, action_space):
         pass
 
 class MyAgent(AgentType):
@@ -22,7 +26,17 @@ class MyAgent(AgentType):
         A simple agent playing FlappyBird.
     """
 
-    def __init__(self, state_size, action_space, batch_size=32, memory_size=50000):
+    def __init__(self, 
+        state_size    = 0,
+        action_space  = [],
+        batch_size    = 32,
+        memory_size   = 50000,
+        gamma         = 0.99,
+        init_epsilon  = 1.0,
+        epsilon_min   = 0.0001,
+        learning_rate = 0.001,
+        n_observation = 10000,
+        n_explore     = 100000):
         # print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
@@ -31,17 +45,21 @@ class MyAgent(AgentType):
 
         self.memory = deque(maxlen=memory_size)
 
-        self.gamma         = 0.99    # discount rate
-        self.init_epsilon  = 1.0
-        self.epsilon       = 1.0  # exploration rate
-        self.epsilon_min   = 0.0001
-        self.epsilon_decay = 0.99
-        self.learning_rate = 0.001
-        self.n_observation = 10000  # timesteps to observe before training
-        self.n_explore = 100000  # frames over which to anneal epsilon
+        self.gamma         = gamma    # discount rate
+        self.init_epsilon  = init_epsilon
+        self.epsilon       = init_epsilon  # exploration rate
+        self.epsilon_min   = epsilon_min
+        # self.epsilon_decay = 0.99
+        self.learning_rate = learning_rate
+        self.n_observation = n_observation  # timesteps to observe before training
+        self.n_explore     = n_explore  # frames over which to anneal epsilon
 
         # private
         self._state = None
+    
+    def setup(self, state_size, action_space):
+        self.state_size   = state_size
+        self.action_space = action_space
 
         # init model
         self.model = self._build_model()
@@ -123,18 +141,24 @@ class MyAgent(AgentType):
         self.model.load_weights(file_name)
 
     def save(self, file_name):
+        if len(self.memory) < self.batch_size or len(self.memory) < self.n_observation:
+            print('Model is not trained yet, not save.')
+            return # not trained
         self.model.save_weights(file_name)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a robot for "Flappy Bird" game.')
-    parser.add_argument('-f', '--save-folder', dest='save_folder', default=None, type=str,
+    parser.add_argument('-d', '--save-dir', dest='save_folder', default=None, type=str,
                         help='Select a folder to store the saved data e.g., network.')
-    parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
-                        default=False, help='Display game to the screen.', action='store_true')
+    # parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
+    #                     default=False, help='Display game to the screen.', action='store_true')
     parser.add_argument('-l', '--load', type=str, default=None, dest='load_file', help='Select file under "save-folder" to load.')
-    parser.add_argument('-e', '--episode', dest='n_episodes', default=200000, type=int, help='Number of episodes to run.')
-    parser.add_argument('-b', '--batch-size', dest='batch_size', type=int, default=32, help='Batch size')
-    parser.add_argument('-fq', '--save-freq', help='Save frequency', default=0, type=int, dest='save_freq')
+    # parser.add_argument('-e', '--episode', dest='n_episodes', default=200000, type=int, help='Number of episodes to run.')
+    # parser.add_argument('-b', '--batch-size', dest='batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('-f', '--conf-file', help='Select config file',
+                        default='conf.json', type=str, dest='conf_file')
+    # parser.add_argument('-fq', '--save-freq', help='Save frequency',
+    #                     default=0, type=int, dest='save_freq')
     args = parser.parse_args()
 
     # print(args.not_display_screen)
@@ -143,12 +167,14 @@ if __name__ == "__main__":
     # n_episodes = 2
 
     game = FlappyBird()
-    trainer = Trainer(game, MyAgent, display_screen=not args.not_display_screen,
-                      save_folder=args.save_folder, batch_size=args.batch_size, save_freq=args.save_freq)
-    trainer.load(args.load_file)
-    trainer.train(args.n_episodes)
-    # trainer.play()
-    trainer.save()
-    trainer.save_screen() # for testing screen
 
+    with open(args.conf_file) as cf:
+        loaded_config = json.load(cf)
+        agent = MyAgent(**(loaded_config['agent']))
+        trainer = Trainer(game, agent, **(loaded_config['trainer']))
+        trainer.load(args.load_file)
+        trainer.train()
+        # trainer.play()
+        trainer.save()
+        trainer.save_screen()  # for testing screen
 

@@ -3,7 +3,12 @@ from ple import PLE
 import os.path, datetime
 
 class Trainer:
-    def __init__(self, game, agentType, max_episode_time=100000, display_screen=True, save_folder=None, batch_size=20, save_freq=0):
+    def __init__(self, game, agent,
+                 max_episode_time = 100000,
+                 display_screen   = True,
+                 save_folder      = None,
+                 save_freq        = 0,
+                 n_episodes       = 100):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -14,6 +19,7 @@ class Trainer:
         # init parameters
         # define how many actions will be ignored at the beginning.
         self.max_noops = 2
+        self.n_episodes = n_episodes
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time
         self.save_folder = save_folder
@@ -29,10 +35,8 @@ class Trainer:
             display_screen=display_screen,
             state_preprocessor=lambda state: np.array(list(state.values())))
 
-        self.agent = agentType(
-            self.ple.getGameStateDims(),
-            self.ple.getActionSet(),
-            batch_size=batch_size)
+        self.agent = agent
+        self.agent.setup(self.ple.getGameStateDims(),self.ple.getActionSet())
 
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
@@ -41,11 +45,11 @@ class Trainer:
         return str(datetime.datetime.now())
 
     def load(self, filename):
-        if not self.save_folder is None:
+        if not self.save_folder is None and not filename is None:
             # TODO load cum_n_episodes
             fn = os.path.join(self.save_folder, filename)
             if os.path.isfile(fn):
-                print('load: ' + fn)
+                print('Load: ' + fn)
                 self.agent.load(fn)
             else:
                 print('Not found file: '+fn)
@@ -76,9 +80,11 @@ class Trainer:
             self.ple.act(self.ple.NOOP)
         return self.ple.act(self.ple.NOOP)
 
-    def train(self, n_episodes):
+    def train(self, n_episodes=None):
         """Train model with 'n_episodes' game plays.
         """
+        if n_episodes is None:
+            n_episodes = self.n_episodes
         self.cum_n_episodes += n_episodes
 
         def on_step(action, reward, state, game_over):
