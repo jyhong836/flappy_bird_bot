@@ -65,7 +65,7 @@ class MyAgent(AgentType):
         self.model = self._build_model()
     
     def _build_model(self):
-        model = ModelFactory.naive_dqn(self.state_size, len(
+        model = ModelFactory.naive_dqn_v1(self.state_size, len(
             self.action_space), self.learning_rate)
         return model
 
