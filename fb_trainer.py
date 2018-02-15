@@ -8,7 +8,8 @@ class Trainer:
                  display_screen   = True,
                  save_folder      = None,
                  save_freq        = 0,
-                 n_episodes       = 100):
+                 n_episodes       = 100,
+                 max_noops        = 2):
         fps = 30  # fps we want to run at
 
         frame_skip = 2
@@ -18,7 +19,7 @@ class Trainer:
 
         # init parameters
         # define how many actions will be ignored at the beginning.
-        self.max_noops = 2
+        self.max_noops = max_noops
         self.n_episodes = n_episodes
         self.cum_n_episodes = 0
         self.max_episode_time = max_episode_time

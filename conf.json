@@ -4,7 +4,8 @@
         "display_screen"  : false,
         "save_folder"     : "./save",
         "save_freq"       : 100,
-        "n_episodes"      : 200000
+        "n_episodes"      : 200000,
+        "max_noops"       : 20
     },
     "agent": {
         "batch_size"   : 32,
