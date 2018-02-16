@@ -109,7 +109,7 @@ class Trainer:
         """
         self._run(on_game_over=lambda time: print(
             '[Game over] score: {}'.format(time)),
-            on_step=lambda action, reward, state, game_over: print('action: {}'.format(action)))
+            on_step=lambda action, reward, state, game_over: print('action: {}, reward: {}, gg: {}'.format(action, reward, game_over)))
 
     def _run(self,
         on_step=lambda action, reward, state, game_over: None,
