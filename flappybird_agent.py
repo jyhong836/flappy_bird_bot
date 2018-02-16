@@ -157,8 +157,8 @@ class MyAgent(AgentType):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a robot for "Flappy Bird" game.')
-    parser.add_argument('-d', '--save-dir', dest='save_folder', default=None, type=str,
-                        help='Select a folder to store the saved data e.g., network.')
+    # parser.add_argument('-d', '--save-dir', dest='save_folder', default=None, type=str,
+                        # help='Select a folder to store the saved data e.g., network.')
     # parser.add_argument('-ns', '--no-display-screen', dest='not_display_screen',
     #                     default=False, help='Display game to the screen.', action='store_true')
     parser.add_argument('-l', '--load', type=str, default=None, dest='load_file', help='Select file under "save-folder" to load.')
