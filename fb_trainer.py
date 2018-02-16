@@ -92,14 +92,14 @@ class Trainer:
         def on_step(action, reward, state, game_over):
             self.agent.remember(action, reward, state, game_over)
 
-        def on_game_over(time, ep, n_episodes):
+        def on_game_over(total_reward, ep, n_episodes):
             print(
-                '[episode: {}/{}], score: {}, epsilon: {}'.format(ep+1, n_episodes, time, self.agent.epsilon))
+                '[episode: {}/{}], reward: {}, epsilon: {}'.format(ep+1, n_episodes, total_reward, self.agent.epsilon))
             self.agent.study()
 
         for ep in range(n_episodes):
             self._run(on_step=on_step,
-                      on_game_over=lambda time: on_game_over(time, ep, n_episodes))
+                      on_game_over=lambda total_reward: on_game_over(total_reward, ep, n_episodes))
                 # on_init=lambda state: self.agent.set_state(state), 
             if self.save_freq > 0 and ep % self.save_freq == 0:
                 self.save()
@@ -107,13 +107,13 @@ class Trainer:
     def play(self):
         """Play using the trained agent
         """
-        self._run(on_game_over=lambda time: print(
-            '[Game over] score: {}'.format(time)),
+        self._run(on_game_over=lambda total_reward: print(
+            '[Game over] score: {}'.format(total_reward)),
             on_step=lambda action, reward, state, game_over: print('action: {}, reward: {}, gg: {}'.format(action, reward, game_over)))
 
     def _run(self,
         on_step=lambda action, reward, state, game_over: None,
-        on_game_over=lambda time: None):
+        on_game_over=lambda total_reward: None):
         """Run the game with agent
 
         Parameters:
@@ -125,12 +125,14 @@ class Trainer:
         self.ple.reset_game()
         reward = self._random_action()
         state = self.getState()
+        total_reward = 0.0
         # on_init(state)
 
         for time in range(self.max_episode_time):
             # print(f'state: {state}')
             action = self.agent.act(reward, state)
             reward, state, game_over = self.ple.act(action), self.getState(), self.ple.game_over()
+            total_reward += reward
             # if game_over:
             #     print(f'game over reward: {reward}')
             # reward = reward if not game_over else -10
@@ -138,8 +140,8 @@ class Trainer:
             on_step(action, reward, state, game_over)
 
             if game_over:
-                on_game_over(time)
+                on_game_over(total_reward)
                 break
         else:
-            print('Game is not ended when timeout{}.'.format(
+            print('Game is not ended when timeout{}. Try increase "max_episode_time" to solve.'.format(
                 self.max_episode_time))
