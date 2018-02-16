@@ -54,6 +54,10 @@ class MyAgent(AgentType):
         self.n_observation = n_observation  # timesteps to observe before training
         self.n_explore     = n_explore  # frames over which to anneal epsilon
 
+        if self.n_observation > memory_size:
+            print('Observation is more than memory. The memory will never be replayed.')
+            raise ValueError()
+
         # private
         self._state = None
     
@@ -177,7 +181,7 @@ if __name__ == "__main__":
         loaded_config = json.load(cf)
         agent = MyAgent(**(loaded_config['agent']))
         trainer = Trainer(game, agent, **(loaded_config['trainer']))
-        trainer.load(args.load_file)
+        # trainer.load(args.load_file)
         trainer.train()
         # trainer.play()
         trainer.save()
