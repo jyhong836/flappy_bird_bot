@@ -17,7 +17,12 @@ class train_logger(object):
             # create summaries
             tf.summary.scalar("reward", reward)
             tf.summary.scalar("loss", loss)
-        return reward, loss
+        with tf.name_scope("test"):
+            # create variables
+            te_reward = tf.Variable(0.0, name="reward", trainable=False)
+            # create summaries
+            tf.summary.scalar("reward", te_reward)
+        return reward, loss, te_reward
 
 
     def __init__(self, summary_dir):
@@ -25,7 +30,7 @@ class train_logger(object):
 
         # a simple session
         sess = tf.Session()
-        self.reward, self.loss = self._create_train_variables()
+        self.reward, self.loss, self.te_reward = self._create_train_variables()
         # merge op
         summary_op = tf.summary.merge_all() 
         # create writer
@@ -38,12 +43,13 @@ class train_logger(object):
         self.summary_op = summary_op
         self.summary_writer = summary_writer
 
-    def log(self, step, reward, loss):
+    def log(self, step, reward, loss, te_reward):
         """Log data by one step.
         """
         feed_dict = {
-            self.reward: reward,
-            self.loss: loss,
+            self.reward   : reward,
+            self.loss     : loss,
+            self.te_reward: te_reward,
         }
 
         # sess.run returns a list, so we have to explicitly
@@ -57,10 +63,10 @@ class train_logger(object):
 if __name__ == "__main__": # for test
     logger = train_logger('save')  # logdir='save'
 
-    fake_info = rand(100, 2) # random data
+    fake_info = rand(100, 3) # random data
 
     for step, infoset in enumerate(fake_info):
-        logger.log(step, infoset[0], infoset[1])
+        logger.log(step, infoset[0], infoset[1], infoset[2])
 
     logger.close()
 
