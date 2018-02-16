@@ -73,9 +73,12 @@ class MyAgent(AgentType):
             self.action_space), self.learning_rate)
         return model
 
-    def act(self, reward, state):
+    def act(self, state, do_explore=True):
+        """
+        do_explore - False if force not exploring.
+        """
         self._state = state
-        if np.random.rand() <= self.epsilon:
+        if do_explore and np.random.rand() <= self.epsilon:
             return self.action_space[np.random.randint(0, len(self.action_space))]
         else:
             action_prob = self.model.predict(self._state_preprocessor(state))

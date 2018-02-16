@@ -137,7 +137,7 @@ class Trainer:
 
         for time in range(self.max_episode_time):
             # print(f'state: {state}')
-            action = self.agent.act(state)
+            action = self.agent.act(state, do_explore=do_explore)
             reward, state, game_over = self.ple.act(action), self.getState(), self.ple.game_over()
             total_reward += reward
             # if game_over:
