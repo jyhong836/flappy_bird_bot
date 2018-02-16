@@ -1,6 +1,7 @@
 import numpy as np
 from ple import PLE
 import os.path, datetime
+from fb_logger import train_logger
 
 class Trainer:
     def __init__(self, game, agent,
@@ -42,6 +43,9 @@ class Trainer:
 
         # self.getState = lambda: self.ple.getScreenRGB()
         self.getState = lambda: self.ple.getGameState()
+
+        # create logger
+        self.logger = train_logger(save_folder)
 
     def _get_time(self):
         return str(datetime.datetime.now())
@@ -96,6 +100,7 @@ class Trainer:
             loss, epsilon = self.agent.study()
             print('[epi: {}/{}], r: {}, loss: {}, epsi: {}'.\
                 format(ep+1, n_episodes, total_reward, loss, epsilon))
+            self.logger.log(ep+1, total_reward, loss)
 
         for ep in range(n_episodes):
             self._run(on_step=on_step,
@@ -145,3 +150,4 @@ class Trainer:
         else:
             print('Game is not ended when timeout{}. Try increase "max_episode_time" to solve.'.format(
                 self.max_episode_time))
+
