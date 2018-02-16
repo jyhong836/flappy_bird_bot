@@ -25,7 +25,7 @@ class train_logger(object):
 
         # a simple session
         sess = tf.Session()
-        self.loss, self.reward = self._create_train_variables()
+        self.reward, self.loss = self._create_train_variables()
         # merge op
         summary_op = tf.summary.merge_all() 
         # create writer
