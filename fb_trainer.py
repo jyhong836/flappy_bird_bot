@@ -9,10 +9,9 @@ class Trainer:
                  save_folder      = None,
                  save_freq        = 0,
                  n_episodes       = 100,
-                 max_noops        = 2):
-        fps = 30  # fps we want to run at
-
-        frame_skip = 2
+                 max_noops        = 2,
+                 fps              = 30,
+                 frame_skip       = 3):
         num_steps = 1
         # force_fps = False  # slower speed
         # display_screen = True  # Set to false if there is no screen available
