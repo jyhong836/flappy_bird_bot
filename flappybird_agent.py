@@ -83,9 +83,11 @@ class MyAgent(AgentType):
 
     def study(self):
         """Learn models from memory or by replaying.
+
+        Return: loss of training or None
         """
         if len(self.memory) < self.batch_size or len(self.memory) < self.n_observation:
-            return # not study
+            return None, self.epsilon # not study
 
         def on_play(curstate, action, reward, next_state, game_over):
             # print(curstate, action, reward, next_state, game_over)
@@ -98,10 +100,11 @@ class MyAgent(AgentType):
             return (curstate, target)
 
         x, y = self._replay(self.batch_size, on_play)
-        self.model.train_on_batch(x, y)
+        loss = self.model.train_on_batch(x, y)
         if self.epsilon > self.epsilon_min and len(self.memory) > self.n_observation:
             # self.epsilon *= self.epsilon_decay
             self.epsilon -= (self.init_epsilon - self.epsilon_min) / self.n_explore
+        return loss, self.epsilon
 
     def _replay(self, batch_size, on_play):
         """

@@ -7,7 +7,7 @@ class Trainer:
                  max_episode_time = 100000,
                  display_screen   = True,
                  save_folder      = None,
-                 save_name        = 'fbtr.h5',
+                 save_name        = 'fbtr',
                  save_freq        = 0,
                  n_episodes       = 100,
                  max_noops        = 2,
@@ -60,7 +60,7 @@ class Trainer:
         if not self.save_folder is None and not self.save_name is None:
             # TODO save cum_n_episodes
             filename = os.path.join(
-                self.save_folder, self.save_name)
+                self.save_folder, self.save_name+'.h5')
             # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
             print('save: '+filename)
             self.agent.save(filename)
@@ -93,9 +93,9 @@ class Trainer:
             self.agent.remember(action, reward, state, game_over)
 
         def on_game_over(total_reward, ep, n_episodes):
-            print(
-                '[episode: {}/{}], reward: {}, epsilon: {}'.format(ep+1, n_episodes, total_reward, self.agent.epsilon))
-            self.agent.study()
+            loss, epsilon = self.agent.study()
+            print('[epi: {}/{}], r: {}, loss: {}, epsi: {}'.\
+                format(ep+1, n_episodes, total_reward, loss, epsilon))
 
         for ep in range(n_episodes):
             self._run(on_step=on_step,
