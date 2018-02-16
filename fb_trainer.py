@@ -7,7 +7,7 @@ class Trainer:
                  max_episode_time = 100000,
                  display_screen   = True,
                  save_folder      = None,
-                 save_name        = None,
+                 save_name        = 'fbtr.h5',
                  save_freq        = 0,
                  n_episodes       = 100,
                  max_noops        = 2,
@@ -60,7 +60,7 @@ class Trainer:
         if not self.save_folder is None and not self.save_name is None:
             # TODO save cum_n_episodes
             filename = os.path.join(
-                self.save_folder, 'fbtr.h5')
+                self.save_folder, self.save_name)
             # self.save_folder, 'fbtr_'+self._get_time()+'.h5')
             print('save: '+filename)
             self.agent.save(filename)
