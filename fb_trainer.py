@@ -114,11 +114,13 @@ class Trainer:
         """
         self._run(on_game_over=lambda total_reward: print(
             '[Game over] score: {}'.format(total_reward)),
-            on_step=lambda action, reward, state, game_over: print('action: {}, reward: {}, gg: {}'.format(action, reward, game_over)))
+            on_step=lambda action, reward, state, game_over: print('action: {}, reward: {}, gg: {}'.format(action, reward, game_over)),
+            do_explore=False)
 
     def _run(self,
         on_step=lambda action, reward, state, game_over: None,
-        on_game_over=lambda total_reward: None):
+        on_game_over=lambda total_reward: None,
+        do_explore=True):
         """Run the game with agent
 
         Parameters:
@@ -135,7 +137,7 @@ class Trainer:
 
         for time in range(self.max_episode_time):
             # print(f'state: {state}')
-            action = self.agent.act(reward, state)
+            action = self.agent.act(state)
             reward, state, game_over = self.ple.act(action), self.getState(), self.ple.game_over()
             total_reward += reward
             # if game_over:
