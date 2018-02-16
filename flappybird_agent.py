@@ -181,7 +181,7 @@ if __name__ == "__main__":
         loaded_config = json.load(cf)
         agent = MyAgent(**(loaded_config['agent']))
         trainer = Trainer(game, agent, **(loaded_config['trainer']))
-        # trainer.load(args.load_file)
+        trainer.load(args.load_file)
         trainer.train()
         # trainer.play()
         trainer.save()

@@ -7,6 +7,7 @@ class Trainer:
                  max_episode_time = 100000,
                  display_screen   = True,
                  save_folder      = None,
+                 save_name        = None,
                  save_freq        = 0,
                  n_episodes       = 100,
                  max_noops        = 2,
@@ -18,12 +19,13 @@ class Trainer:
 
         # init parameters
         # define how many actions will be ignored at the beginning.
-        self.max_noops = max_noops
-        self.n_episodes = n_episodes
-        self.cum_n_episodes = 0
+        self.max_noops        = max_noops
+        self.n_episodes       = n_episodes
+        self.cum_n_episodes   = 0
         self.max_episode_time = max_episode_time
-        self.save_folder = save_folder
-        self.save_freq = save_freq # freq of auto-save network
+        self.save_folder      = save_folder
+        self.save_name        = save_name
+        self.save_freq        = save_freq # freq of auto-save network
 
         # make a PLE instance.
         self.ple = PLE(
@@ -55,7 +57,7 @@ class Trainer:
                 print('Not found file: '+fn)
 
     def save(self):
-        if not self.save_folder is None:
+        if not self.save_folder is None and not self.save_name is None:
             # TODO save cum_n_episodes
             filename = os.path.join(
                 self.save_folder, 'fbtr.h5')
