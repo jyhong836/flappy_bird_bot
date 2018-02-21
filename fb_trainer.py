@@ -14,7 +14,9 @@ class Trainer:
                  n_episodes       = 100,
                  max_noops        = 2,
                  fps              = 30,
-                 frame_skip       = 3):
+                 frame_skip       = 3,
+                 fix_game_rng     = False,
+                 game_rng         = 20):
         num_steps = 1
         # force_fps = False  # slower speed
         # display_screen = True  # Set to false if there is no screen available
@@ -29,6 +31,8 @@ class Trainer:
         self.save_name        = save_name
         self.save_freq        = save_freq # freq of auto-save network
         self.test_freq        = test_freq # freq of test
+        self.fix_game_rng     = fix_game_rng # make game not random
+        self.game_rng         = game_rng # game seed
 
         # make a PLE instance.
         self.ple = PLE(
@@ -38,7 +42,8 @@ class Trainer:
             num_steps=num_steps,
             force_fps=True, # 'False' only for better visual
             display_screen=display_screen,
-            state_preprocessor=lambda state: np.array(list(state.values())))
+            state_preprocessor=lambda state: np.array(list(state.values())),
+            rng=game_rng)
 
         self.agent = agent
         self.agent.setup(self.ple.getGameStateDims(),self.ple.getActionSet())
@@ -139,6 +144,8 @@ class Trainer:
         if self.cum_n_episodes == 0:
             print('[WARN] agent is not trained yet.')
         self.ple.reset_game()
+        if self.fix_game_rng:
+            self.ple.game.rng = np.random.RandomState(self.game_rng)
         reward = self._random_action()
         state = self.getState()
         total_reward = 0.0

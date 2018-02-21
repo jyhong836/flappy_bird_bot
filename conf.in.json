@@ -1,0 +1,26 @@
+{
+    "trainer": {
+        "max_episode_time": 100000,
+        "display_screen"  : true,
+        "save_folder"     : "./save/run_interact",
+        "save_name"       : "fbtr_interact",
+        "save_freq"       : 0,
+        "test_freq"       : 10,
+        "n_episodes"      : 1000000,
+        "max_noops"       : 1,
+        "fps"             : 30,
+        "frame_skip"      : 2,
+        "fix_game_rng"    : true,
+        "game_rng"        : 30
+    },
+    "agent": {
+        "batch_size"   : 32,
+        "memory_size"  : 1000,
+        "gamma"        : 0.95,
+        "init_epsilon" : 1.0,
+        "epsilon_min"  : 0.1,
+        "learning_rate": 0.01,
+        "n_observation": 100,
+        "n_explore"    : 1000
+    }
+}
