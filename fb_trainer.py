@@ -10,6 +10,7 @@ class Trainer:
                  save_folder      = None,
                  save_name        = 'fbtr',
                  save_freq        = 0,
+                 test_freq        = 0,
                  n_episodes       = 100,
                  max_noops        = 2,
                  fps              = 30,
@@ -27,6 +28,7 @@ class Trainer:
         self.save_folder      = save_folder
         self.save_name        = save_name
         self.save_freq        = save_freq # freq of auto-save network
+        self.test_freq        = test_freq # freq of test
 
         # make a PLE instance.
         self.ple = PLE(
@@ -96,16 +98,23 @@ class Trainer:
         def on_step(action, reward, state, game_over):
             self.agent.remember(action, reward, state, game_over)
 
-        def on_game_over(total_reward, ep, n_episodes):
-            loss, epsilon = self.agent.study()
-            print('[epi: {}/{}], r: {}, loss: {}, epsi: {}'.\
-                format(ep+1, n_episodes, total_reward, loss, epsilon))
-            self.logger.log(ep+1, total_reward, loss)
+        def on_game_over(total_reward, ep, n_episodes, is_test):
+            if is_test:
+                loss, epsilon = self.agent.study()
+                print('[test ep: {}/{}] r: {}'.
+                      format(ep+1, n_episodes, total_reward))
+            else:
+                loss, epsilon = self.agent.study()
+                print('[epi: {}/{}] r: {}, loss: {}, epsi: {}'.\
+                    format(ep+1, n_episodes, total_reward, loss, epsilon))
+            self.logger.log(ep+1, total_reward, loss, is_test)
 
         for ep in range(n_episodes):
+            if self.test_freq > 0 and ep % self.test_freq == 0: # do test
+                self._run(do_explore=False,
+                    on_game_over=lambda total_reward: on_game_over(total_reward, ep, n_episodes, True))
             self._run(on_step=on_step,
-                      on_game_over=lambda total_reward: on_game_over(total_reward, ep, n_episodes))
-                # on_init=lambda state: self.agent.set_state(state), 
+                        on_game_over=lambda total_reward: on_game_over(total_reward, ep, n_episodes, False))
             if self.save_freq > 0 and ep % self.save_freq == 0:
                 self.save()
 
