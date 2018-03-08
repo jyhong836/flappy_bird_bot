@@ -36,7 +36,8 @@ class MyAgent(AgentType):
         epsilon_min   = 0.0001,
         learning_rate = 0.001,
         n_observation = 10000,
-        n_explore     = 100000):
+        n_explore     = 100000,
+        nn_model      = "naive_dqn_v2"):
         # print(action_space)
         # assert len(state_size) == 1
         self.state_size   = state_size
@@ -54,6 +55,8 @@ class MyAgent(AgentType):
         self.n_observation = n_observation  # timesteps to observe before training
         self.n_explore     = n_explore  # frames over which to anneal epsilon
 
+        self.nn_model = nn_model # neural network model
+
         if self.n_observation > memory_size:
             print('Observation is more than memory. The memory will never be replayed.')
             raise ValueError()
@@ -69,7 +72,7 @@ class MyAgent(AgentType):
         self.model = self._build_model()
     
     def _build_model(self):
-        model = ModelFactory.naive_dqn_v1(self.state_size, len(
+        model = getattr(ModelFactory, self.nn_model)(self.state_size, len(
             self.action_space), self.learning_rate)
         return model
 
