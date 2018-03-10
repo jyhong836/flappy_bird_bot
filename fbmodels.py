@@ -3,6 +3,16 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 import keras.backend
 
+if "tensorflow" == keras.backend:
+    from tensorflow.python.client import device_lib
+    if "GPU" == device_lib.list_local_devices()[0].device_type:
+        import tensorflow as tf
+        from keras.backend.tensorflow_backend import set_session
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        config.gpu_options.visible_device_list = "0"
+        set_session(tf.Session(config=config))
+
 class ModelFactory():
     """My model factories
     """
