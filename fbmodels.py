@@ -2,16 +2,25 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 import keras.backend
+# import sys
 
-if "tensorflow" == keras.backend:
+print("------- backend: ", keras.backend.backend())
+if "tensorflow" == keras.backend.backend():
     from tensorflow.python.client import device_lib
-    if "GPU" == device_lib.list_local_devices()[0].device_type:
-        import tensorflow as tf
-        from keras.backend.tensorflow_backend import set_session
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        config.gpu_options.visible_device_list = "0"
-        set_session(tf.Session(config=config))
+    print("--- type: ", device_lib.list_local_devices())
+    for dv in device_lib.list_local_devices():
+        dt = dv.device_type
+        if "GPU" == dt:
+            print("GPU setting.....")
+            import tensorflow as tf
+            from keras.backend.tensorflow_backend import set_session
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+            # config.gpu_options.visible_device_list = "0"
+            set_session(tf.Session(config=config))
+            break
+
+# sys.exit()
 
 class ModelFactory():
     """My model factories
