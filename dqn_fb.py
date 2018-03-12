@@ -8,6 +8,13 @@ import numpy as np
 import gym
 import gym_ple # import extra games, e.g., FlappyBird
 
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+# config.gpu_options.visible_device_list = "0"
+set_session(tf.Session(config=config))
+
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, Convolution2D, Permute
 from keras.optimizers import Adam
