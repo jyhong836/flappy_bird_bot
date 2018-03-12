@@ -12,7 +12,7 @@ import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-# config.gpu_options.visible_device_list = "0"
+config.gpu_options.visible_device_list = "1"
 set_session(tf.Session(config=config))
 
 from keras.models import Sequential
